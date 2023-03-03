@@ -38,14 +38,19 @@ class Trie {
 
     public:
         Trie();
+
+        // Basic operations
         bool insert(std::string word);
         bool insert(std::vector<std::string> words);
         bool search(std::string word);
         bool erase(std::string word);
         int size();
 
+        // Advanced operations
         std::vector<std::string> getWordsWithPrefix(std::string prefix);
-        std::vector<std::string> getWordsSorted();
+        std::vector<std::string> getAllWordsSorted();
+        
+        std::string findLexicographicalNext(std::string word);
         std::vector<std::string> getWordsLexicographicallyGreaterThan(std::string leftBound);
         std::vector<std::string> getWordsLexicographicallySmallerThan(std::string rightBound);
         std::vector<std::string> getWordsLexicographicallyBetween(std::string leftBound, std::string rightBound);

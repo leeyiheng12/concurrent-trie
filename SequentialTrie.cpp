@@ -1,4 +1,4 @@
-#include "ConcurrentTrie.h"
+#include "SequentialTrie.h"
 
 Node::Node() {
     for (int i = 0; i < NODE_SIZE; i++) {
@@ -163,6 +163,7 @@ int Trie::size() {
     return size_;
 }
 
+
 // Given a prefix, return all words in the trie that strictly starts with that prefix.
 std::vector<std::string> Trie::getWordsWithPrefix(std::string prefix) {
 
@@ -212,7 +213,7 @@ std::vector<std::string> Trie::getWordsWithPrefix(std::string prefix) {
 
 
 // Returns all words in the trie, sorted alphabetically.
-std::vector<std::string> Trie::getWordsSorted() {
+std::vector<std::string> Trie::getAllWordsSorted() {
     // In this sequential implementation, this returns the same thing as getWordsWithPrefix("")
 
     std::vector<std::string> words;
@@ -246,6 +247,12 @@ std::vector<std::string> Trie::getWordsSorted() {
     }
     return words;
 
+}
+
+
+// Given a word, return the lexicographically next word in the trie.
+std::string Trie::findLexicographicalNext(std::string word) {
+    return "";
 }
 
 // Returns all words in the trie that are lexicographically greater than the leftBound.
@@ -387,10 +394,7 @@ void testGetWordsSorted() {
         trie.insert(str);
     }
 
-    std::vector<std::string> words = trie.getWordsSorted();
-    for (std::string word : words) {
-        printf("%s\n", word.c_str());
-    }
+    std::vector<std::string> words = trie.getAllWordsSorted();
     IS_TRUE(words == stringsToTest);
 
 }
