@@ -14,7 +14,7 @@
 
 class Node {
 
-    friend class SequentialTrie;
+    friend class ConcurrentTrie;
 
     private:
         std::shared_ptr<Node> children_[NODE_SIZE];
@@ -27,7 +27,7 @@ class Node {
         Node();
 };
 
-class SequentialTrie {
+class ConcurrentTrie {
 
     private:
         std::shared_ptr<Node> root_;
@@ -37,7 +37,7 @@ class SequentialTrie {
         void possiblyDeleteNode(std::shared_ptr<Node> node);
 
     public:
-        SequentialTrie();
+        ConcurrentTrie();
 
         // Basic operations
         bool insert(std::string word);
