@@ -21,9 +21,16 @@ int Trie::getIndexOfChar(char c) {
     }
     return idx;
 }
+
+char Trie::getCharForIndex(int idx) {
+    if (idx < 0 || idx >= NODE_SIZE) {
+        throw std::invalid_argument("Invalid index");
+    }
+    return idx + ' ';
+}
  
-// Inserts a string into the trie.
-// Returns true if the string is already in the trie.
+// Inserts a word into the trie.
+// Returns true if the word is already in the trie.
 bool Trie::insert(std::string word) {
 
     std::shared_ptr<Node> cur = root_;
@@ -55,6 +62,19 @@ bool Trie::insert(std::string word) {
     cur->isEnd_ = true;
     size_++;
     return false;
+}
+
+// Inserts multiple words into the trie.
+// Returns true if all words are already in the trie.
+bool Trie::insert(std::vector<std::string> words) {
+
+    bool allPresent = true;
+    for (int i = 0; i < words.size(); i++) {
+        if (!insert(words[i])) {
+            allPresent = false;
+        }
+    }
+    return allPresent;
 }
  
 // Returns true if word is present in the trie.
@@ -110,7 +130,6 @@ bool Trie::erase(std::string word) {
 // Until we find a prefix of this word that exists in the set, we keep going up the trie, deleting nodes.
 // For instance, if our set has "beta" and "be", and we remove "beta",
 // we want to remove the "a" node, and go up and remove the "t" node as well.
-
 void Trie::possiblyDeleteNode(std::shared_ptr<Node> node) {
 
     if (node == root_) {  // We don't want to delete the root
@@ -139,8 +158,104 @@ void Trie::possiblyDeleteNode(std::shared_ptr<Node> node) {
     possiblyDeleteNode(parent);
 }
 
+
 int Trie::size() {
     return size_;
+}
+
+// Given a prefix, return all words in the trie that strictly starts with that prefix.
+std::vector<std::string> Trie::getWordsWithPrefix(std::string prefix) {
+
+    std::vector<std::string> words;
+
+    // Find the node that corresponds to the prefix
+    std::shared_ptr<Node> cur = root_;
+    int index;
+    for (int i = 0; i < prefix.length(); i++) {
+        index = getIndexOfChar(prefix[i]);
+        if (!cur->children_[index]) {
+            return words;  // Return empty vector
+        }
+        cur = cur->children_[index];
+    }
+
+    // Now we have the node that corresponds to the prefix.
+    std::string word = prefix;
+
+    // Initialise a stack of (node, word)
+    std::stack<std::pair<std::shared_ptr<Node>, std::string>> stack;
+    stack.push(std::make_pair(cur, word));
+
+    std::pair<std::shared_ptr<Node>, std::string> curPairToEvaluate;
+    std::shared_ptr<Node> curNodeToEvaluate;
+    std::string curWordToEvaluate;
+    while (!stack.empty()) {
+        curPairToEvaluate = stack.top();
+        stack.pop();
+        curNodeToEvaluate = curPairToEvaluate.first;
+        curWordToEvaluate = curPairToEvaluate.second;
+
+        if (curNodeToEvaluate->isEnd_) {
+            words.push_back(curWordToEvaluate);  // We have a word
+        }
+
+        for (int i = NODE_SIZE - 1; i >= 0; i--) {  // Iterate through all children
+            if (curNodeToEvaluate->children_[i]) {
+                curWordToEvaluate.push_back(getCharForIndex(i));
+                stack.push(std::make_pair(curNodeToEvaluate->children_[i], curWordToEvaluate));
+                curWordToEvaluate.pop_back();
+            }
+        }
+    }
+    return words;
+}
+
+
+// Returns all words in the trie, sorted alphabetically.
+std::vector<std::string> Trie::getWordsSorted() {
+    // In this sequential implementation, this returns the same thing as getWordsWithPrefix("")
+
+    std::vector<std::string> words;
+
+    std::string word = "";
+
+    // Initialise a stack of (node, word)
+    std::stack<std::pair<std::shared_ptr<Node>, std::string>> stack;
+    stack.push(std::make_pair(root_, word));
+
+    std::pair<std::shared_ptr<Node>, std::string> curPairToEvaluate;
+    std::shared_ptr<Node> curNodeToEvaluate;
+    std::string curWordToEvaluate;
+    while (!stack.empty()) {
+        curPairToEvaluate = stack.top();
+        stack.pop();
+        curNodeToEvaluate = curPairToEvaluate.first;
+        curWordToEvaluate = curPairToEvaluate.second;
+
+        if (curNodeToEvaluate->isEnd_) {
+            words.push_back(curWordToEvaluate);  // We have a word
+        }
+
+        for (int i = NODE_SIZE - 1; i >= 0; i--) {  // Iterate through all children
+            if (curNodeToEvaluate->children_[i]) {
+                curWordToEvaluate.push_back(getCharForIndex(i));
+                stack.push(std::make_pair(curNodeToEvaluate->children_[i], curWordToEvaluate));
+                curWordToEvaluate.pop_back();
+            }
+        }
+    }
+    return words;
+
+}
+
+// Returns all words in the trie that are lexicographically greater than the leftBound.
+// For instance, if the trie has "be", "bet", "beta", and "bey", and the leftBound is "bet",
+// this method returns "beta" and "bey".
+std::vector<std::string> Trie::getWordsLexicographicallyGreaterThan(std::string leftBound) {
+    std::vector<std::string> words;
+    std::string word;
+    // getWordsLexicographicallyGreaterThanHelper(root_, word, leftBound, &words);
+    return words;
 }
 
 
@@ -244,17 +359,57 @@ void testBasicDelete4() {
 
 }
 
+
+void testGetWordsWithPrefix() {
+
+    Trie trie;
+    trie.insert("a");
+    trie.insert("be");
+    trie.insert("bet");
+    trie.insert("beta");
+    trie.insert("c");
+
+    std::vector<std::string> words = trie.getWordsWithPrefix("b");
+
+    IS_TRUE(words.size() == 3);
+    IS_TRUE(std::find(words.begin(), words.end(), "be") != words.end());
+    IS_TRUE(std::find(words.begin(), words.end(), "bet") != words.end());
+    IS_TRUE(std::find(words.begin(), words.end(), "beta") != words.end());
+    
+}
+
+void testGetWordsSorted() {
+
+    std::vector<std::string> stringsToTest = std::vector<std::string>({"a", "be", "bet", "beta", "c"});
+
+    Trie trie;
+    for (std::string str : stringsToTest) {
+        trie.insert(str);
+    }
+
+    std::vector<std::string> words = trie.getWordsSorted();
+    for (std::string word : words) {
+        printf("%s\n", word.c_str());
+    }
+    IS_TRUE(words == stringsToTest);
+
+}
+
 void basicTests() {
     testBasicInsert();
     testBasicDelete();
     testBasicDelete2();
     testBasicDelete3();
     testBasicDelete4();
+
+    testGetWordsWithPrefix();
+    testGetWordsSorted();
 }
  
 // Driver
 int main(int argc, char const* argv[]) {
     
+    basicTests();
     return 0;
 
 }
