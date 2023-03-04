@@ -1,7 +1,11 @@
-#include <fstream>
-#include <unordered_set>
 #include <chrono>
+#include <fstream>
 #include <sys/time.h>
+#include <unordered_set>
+#include <vector>
+
+#include "ConcurrentTrie.h"
+#include "SequentialTrie.h"
 
 #define NUM_WORDS 99902
 #define NUM_ITERATIONS 10000000
@@ -29,21 +33,30 @@ int main(int argc, char const* argv[]) {
     double start_time, end_time;
 
     // Initialize array of 10000 words on the heap
-    std::string *wordList = new std::string[NUM_WORDS];
+    std::vector<std::string> wordList;
     std::string word;
-
 
     std::ifstream* wordListFile = new std::ifstream("wordlist.txt");
     if (wordListFile->is_open()) {
-        for (int i = 0; i < NUM_WORDS; ++i) {
-            *wordListFile >> word;
-            wordList[i] = word;
+        while (std::getline(*wordListFile, word)) {
+            wordList.push_back(word);
         }
-    } else {
-        free(wordList);
-        free(wordListFile);
-        return 1;
     }
+
+    printf("Number of words in wordlist: %d\n", wordList.size());
+    return 0;
+
+
+    // if (wordListFile->is_open()) {
+    //     for (int i = 0; i < NUM_WORDS; ++i) {
+    //         *wordListFile >> word;
+    //         wordList[i] = word;
+    //     }
+    // } else {
+    //     free(wordList);
+    //     free(wordListFile);
+    //     return 1;
+    // }
 
 
     // ======================= Time initialisation =======================
@@ -52,7 +65,7 @@ int main(int argc, char const* argv[]) {
 
     // Initialise trie NUM_ITERATIONS times
     for (int i = 0; i < NUM_ITERATIONS; i++) {
-        struct TrieNode *trie = getNode();
+        // SequentialTrie* trie = new SequentialTrie();
         free(trie);
     }
 

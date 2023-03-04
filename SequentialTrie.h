@@ -12,46 +12,44 @@
 #define NODE_SIZE 95  // Allow for 95 printable ASCII characters - from space (32) to tilde (126)
 
 
-class Node {
+class SequentialNode {
 
     friend class SequentialTrie;
 
     private:
-        std::shared_ptr<Node> children_[NODE_SIZE];
-        std::shared_ptr<Node> parent_;
+        std::shared_ptr<SequentialNode> children_[NODE_SIZE];
+        std::shared_ptr<SequentialNode> parent_;
         bool isEnd_;
         int numChildren_;
         int selfIndex_;
 
     public:
-        Node();
+        SequentialNode();
 };
 
 class SequentialTrie {
 
     private:
-        std::shared_ptr<Node> root_;
+        std::shared_ptr<SequentialNode> root_;
         int size_;
         int getIndexOfChar(char c);
         char getCharForIndex(int idx);
-        void possiblyDeleteNode(std::shared_ptr<Node> node);
+        void possiblyDeleteNode(std::shared_ptr<SequentialNode> node);
 
     public:
         SequentialTrie();
 
         // Basic operations
         bool insert(std::string word);
-        bool insert(std::vector<std::string> words);
+        std::vector<bool> insert(std::vector<std::string> words);
         bool search(std::string word);
+        std::vector<bool> search(std::vector<std::string> words);
         bool erase(std::string word);
+        std::vector<bool> erase(std::vector<std::string> words);
         int size();
 
         // Advanced operations
         std::vector<std::string> getWordsWithPrefix(std::string prefix);
         std::vector<std::string> getAllWordsSorted();
         
-        std::string findLexicographicalNext(std::string word);
-        std::vector<std::string> getWordsLexicographicallyGreaterThan(std::string leftBound);
-        std::vector<std::string> getWordsLexicographicallySmallerThan(std::string rightBound);
-        std::vector<std::string> getWordsLexicographicallyBetween(std::string leftBound, std::string rightBound);
 };
