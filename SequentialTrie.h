@@ -7,9 +7,12 @@
 #include <utility>  // std::pair
 #include <vector>
 
-#define IS_TRUE(x) { if (!(x)) printf("%s failed on line %d\n", __FUNCTION__, __LINE__); }
-#define IS_FALSE(x) { if ((x)) printf("%s failed on line %d\n", __FUNCTION__, __LINE__); }
-#define NODE_SIZE 95  // Allow for 95 printable ASCII characters - from space (32) to tilde (126)
+
+// #define NODE_SIZE 95  // Allow for 95 printable ASCII characters - from space (32) to tilde (126)
+
+#define SMALLEST_CHAR 0
+#define LARGEST_CHAR 127
+#define NODE_SIZE (LARGEST_CHAR - SMALLEST_CHAR + 1)
 
 
 class SequentialNode {
@@ -40,16 +43,19 @@ class SequentialTrie {
         SequentialTrie();
 
         // Basic operations
-        bool insert(std::string word);
-        std::vector<bool> insert(std::vector<std::string> words);
-        bool search(std::string word);
-        std::vector<bool> search(std::vector<std::string> words);
-        bool erase(std::string word);
-        std::vector<bool> erase(std::vector<std::string> words);
+        void insert(std::string word);
+        void insert(std::vector<std::string>* words);
+
+        bool contains(std::string word);
+        std::vector<bool> contains(std::vector<std::string>* words);
+
+        void remove(std::string word);
+        void remove(std::vector<std::string>* words);
+        
         int size();
 
         // Advanced operations
-        std::vector<std::string> getWordsWithPrefix(std::string prefix);
-        std::vector<std::string> getAllWordsSorted();
+        std::vector<std::string> getStringsWithPrefix(std::string prefix);
+        std::vector<std::string> getAllStringsSorted();
         
 };

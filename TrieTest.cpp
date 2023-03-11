@@ -18,13 +18,13 @@ void testBasicInsert() {
     std::vector<std::string> words = {"be", "bet", "beta"};
 
     for (std::string word : words) {
-        IS_FALSE(sequentialTrie.insert(word));
-        IS_FALSE(concurrentTrie.insert(word));
+        sequentialTrie.insert(word);
+        concurrentTrie.insert(word);
     }
 
     for (std::string word : words) {
-        IS_TRUE(sequentialTrie.search(word));
-        IS_TRUE(concurrentTrie.search(word));
+        IS_TRUE(sequentialTrie.contains(word));
+        IS_TRUE(concurrentTrie.contains(word));
     }
 
 }
@@ -47,17 +47,17 @@ void testBasicDelete() {
     IS_TRUE(concurrentTrie.erase("bet"));
 
     // Check that "bet" is no longer in the trie
-    IS_FALSE(sequentialTrie.search("bet"));
-    IS_FALSE(concurrentTrie.search("bet"));
+    IS_FALSE(sequentialTrie.contains("bet"));
+    IS_FALSE(concurrentTrie.contains("bet"));
 
     // Check that "be" and "beta" are still in the trie
     IS_TRUE(sequentialTrie.size() == 2);
-    IS_TRUE(sequentialTrie.search("be"));
-    IS_TRUE(sequentialTrie.search("beta"));
+    IS_TRUE(sequentialTrie.contains("be"));
+    IS_TRUE(sequentialTrie.contains("beta"));
     
     IS_TRUE(concurrentTrie.size() == 2);
-    IS_TRUE(concurrentTrie.search("be"));
-    IS_TRUE(concurrentTrie.search("beta"));
+    IS_TRUE(concurrentTrie.contains("be"));
+    IS_TRUE(concurrentTrie.contains("beta"));
 
 }
 
@@ -79,22 +79,22 @@ void testBasicDelete2() {
     IS_TRUE(concurrentTrie.erase("bet"));
 
     // Check that "bet" is no longer in the trie
-    IS_FALSE(sequentialTrie.search("bet"));
-    IS_FALSE(concurrentTrie.search("bet"));
+    IS_FALSE(sequentialTrie.contains("bet"));
+    IS_FALSE(concurrentTrie.contains("bet"));
 
     // Check that "beta" is still in the trie
     IS_TRUE(sequentialTrie.size() == 1);
-    IS_TRUE(sequentialTrie.search("beta"));
+    IS_TRUE(sequentialTrie.contains("beta"));
 
     IS_TRUE(concurrentTrie.size() == 1);
-    IS_TRUE(concurrentTrie.search("beta"));
+    IS_TRUE(concurrentTrie.contains("beta"));
 
     // Check that "b" and "be" is not in the trie
-    IS_FALSE(sequentialTrie.search("b"));
-    IS_FALSE(sequentialTrie.search("be"));
+    IS_FALSE(sequentialTrie.contains("b"));
+    IS_FALSE(sequentialTrie.contains("be"));
 
-    IS_FALSE(concurrentTrie.search("b"));
-    IS_FALSE(concurrentTrie.search("be"));
+    IS_FALSE(concurrentTrie.contains("b"));
+    IS_FALSE(concurrentTrie.contains("be"));
 
 }
 
@@ -115,15 +115,15 @@ void testBasicDelete3() {
     IS_TRUE(concurrentTrie.erase("bet"));
 
     // Check that "bet" is no longer in the trie
-    IS_FALSE(sequentialTrie.search("bet"));
-    IS_FALSE(concurrentTrie.search("bet"));
+    IS_FALSE(sequentialTrie.contains("bet"));
+    IS_FALSE(concurrentTrie.contains("bet"));
 
     // Check that "beta" is still in the trie
     IS_TRUE(sequentialTrie.size() == 1);
-    IS_TRUE(sequentialTrie.search("be"));
+    IS_TRUE(sequentialTrie.contains("be"));
 
     IS_TRUE(concurrentTrie.size() == 1);
-    IS_TRUE(concurrentTrie.search("be"));
+    IS_TRUE(concurrentTrie.contains("be"));
 
 
 }
@@ -146,17 +146,17 @@ void testBasicDelete4() {
     IS_TRUE(concurrentTrie.erase("bet"));
 
     // Check that "bet" is no longer in the trie
-    IS_FALSE(sequentialTrie.search("bet"));
-    IS_FALSE(concurrentTrie.search("bet"));
+    IS_FALSE(sequentialTrie.contains("bet"));
+    IS_FALSE(concurrentTrie.contains("bet"));
 
     // Check that "b" and "be" is not in the trie
     IS_TRUE(sequentialTrie.size() == 2);
-    IS_FALSE(sequentialTrie.search("b"));
-    IS_FALSE(sequentialTrie.search("be"));
+    IS_FALSE(sequentialTrie.contains("b"));
+    IS_FALSE(sequentialTrie.contains("be"));
 
     IS_TRUE(concurrentTrie.size() == 2);
-    IS_FALSE(concurrentTrie.search("b"));
-    IS_FALSE(concurrentTrie.search("be"));
+    IS_FALSE(concurrentTrie.contains("b"));
+    IS_FALSE(concurrentTrie.contains("be"));
 
 }
 
@@ -173,7 +173,7 @@ void testGetWordsWithPrefix() {
     }
 
 
-    std::vector<std::string> wordsS = sequentialTrie.getWordsWithPrefix("b");
+    std::vector<std::string> wordsS = sequentialTrie.getStringsWithPrefix("b");
     IS_TRUE(wordsS.size() == 3);
     IS_TRUE(std::find(wordsS.begin(), wordsS.end(), "be") != wordsS.end());
     IS_TRUE(std::find(wordsS.begin(), wordsS.end(), "bet") != wordsS.end());
@@ -199,7 +199,7 @@ void testGetWordsSorted() {
     }
 
 
-    std::vector<std::string> wordsS = sequentialTrie.getAllWordsSorted();
+    std::vector<std::string> wordsS = sequentialTrie.getAllStringsSorted();
     std::vector<std::string> wordsC = concurrentTrie.getAllWordsSorted();
     IS_TRUE(stringsToTest == wordsS);
     IS_TRUE(stringsToTest == wordsC);
@@ -218,11 +218,8 @@ void basicTests() {
 
     printf("Done.\n");
 }
- 
-// Driver
-int main(int argc, char const* argv[]) {
 
-    // Initialize array of 10000 words on the heap
+std::vector<std::string> loadWords() {
     std::vector<std::string> wordList;
     std::string word;
 
@@ -232,7 +229,11 @@ int main(int argc, char const* argv[]) {
             wordList.push_back(word);
         }
     }
-    printf("Number of words in wordlist: %ld\n", wordList.size());
+    return wordList;
+}
+ 
+// Driver
+int main(int argc, char const* argv[]) {
     
     basicTests();
 

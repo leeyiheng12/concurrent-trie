@@ -15,23 +15,24 @@ SequentialTrie::SequentialTrie() {
 }
 
 int SequentialTrie::getIndexOfChar(char c) {
-    int idx = c - ' ';
-    if (idx < 0 || idx >= NODE_SIZE) {
+    int idx = int(c);
+    // if (idx < 0 || idx >= NODE_SIZE) {
+    if (idx < SMALLEST_CHAR || idx > LARGEST_CHAR) {
         throw std::invalid_argument("Invalid character");
     }
     return idx;
 }
 
 char SequentialTrie::getCharForIndex(int idx) {
-    if (idx < 0 || idx >= NODE_SIZE) {
+    if (idx < SMALLEST_CHAR || idx > LARGEST_CHAR) {
         throw std::invalid_argument("Invalid index");
     }
-    return idx + ' ';
+    return char(idx);
 }
  
 // Inserts a word into the SequentialTrie.
 // Returns true if the word is already in the SequentialTrie.
-bool SequentialTrie::insert(std::string word) {
+void SequentialTrie::insert(std::string word) {
 
     std::shared_ptr<SequentialNode> cur = root_;
     int index;
@@ -55,28 +56,26 @@ bool SequentialTrie::insert(std::string word) {
     }
  
     if (cur->isEnd_) {
-        return true;
+        return;
     }
 
     cur->isEnd_ = true;
     size_++;
-    return false;
+    return;
 }
 
 // Inserts multiple words into the SequentialTrie.
 // Returns a vector of booleans, where each boolean corresponds to the word at the same index in the input vector.
 // The boolean is true if the word is already in the SequentialTrie.
-std::vector<bool> SequentialTrie::insert(std::vector<std::string> words) {
+void SequentialTrie::insert(std::vector<std::string>* words) {
 
-    std::vector<bool> results;
-    for (int i = 0; i < words.size(); i++) {
-        results.push_back(insert(words[i]));
+    for (int i = 0; i < words->size(); i++) {
+        insert((*words)[i]);
     }
-    return results;
 }
  
 // Returns true if word is present in the SequentialTrie.
-bool SequentialTrie::search(std::string word) {
+bool SequentialTrie::contains(std::string word) {
 
     std::shared_ptr<SequentialNode> cur = root_;
     int index;
@@ -95,11 +94,11 @@ bool SequentialTrie::search(std::string word) {
 // Checks if multiple words are present in the SequentialTrie.
 // Returns a vector of booleans, where each boolean corresponds to the word at the same index in the input vector.
 // The boolean is true if the word is present in the SequentialTrie.
-std::vector<bool> SequentialTrie::search(std::vector<std::string> words) {
+std::vector<bool> SequentialTrie::contains(std::vector<std::string>* words) {
 
     std::vector<bool> results;
-    for (int i = 0; i < words.size(); i++) {
-        results.push_back(search(words[i]));
+    for (int i = 0; i < words->size(); i++) {
+        results.push_back(contains((*words)[i]));
     }
     return results;
 }
@@ -107,7 +106,7 @@ std::vector<bool> SequentialTrie::search(std::vector<std::string> words) {
 
 // Deletes a word from the SequentialTrie.
 // Returns true if word was in the SequentialTrie and was successfully removed.
-bool SequentialTrie::erase(std::string word) {
+void SequentialTrie::remove(std::string word) {
 
     // There are a few possibilities:
     // 1. The word is not in the SequentialTrie. Return false in this scenario.
@@ -122,31 +121,29 @@ bool SequentialTrie::erase(std::string word) {
     for (int i = 0; i < word.length(); i++) {
         index = getIndexOfChar(word[i]);
         if (!cur->children_[index]) {
-            return false;  // Scenario 1
+            return;
         }
         cur = cur->children_[index];
     }
  
     if (!cur->isEnd_) {
-        return false;  // Scenario 1
+        return;  // Scenario 1
     }
 
     cur->isEnd_ = false;
     size_--;
     possiblyDeleteNode(cur);
-    return true;
 }
 
 // Deletes multiple words from the SequentialTrie.
 // Returns a vector of booleans, where each boolean corresponds to the word at the same index in the input vector.
 // The boolean is true if the word was in the SequentialTrie and was successfully removed.
-std::vector<bool> SequentialTrie::erase(std::vector<std::string> words) {
+void SequentialTrie::remove(std::vector<std::string>* words) {
 
     std::vector<bool> results;
-    for (int i = 0; i < words.size(); i++) {
-        results.push_back(erase(words[i]));
+    for (int i = 0; i < words->size(); i++) {
+        remove((*words)[i]);
     }
-    return results;
 }
 
 // This method is called on the last node when a word is removed from the SequentialTrie.
@@ -188,8 +185,8 @@ int SequentialTrie::size() {
 }
 
 
-// Given a prefix, return all words in the SequentialTrie that strictly starts with that prefix.
-std::vector<std::string> SequentialTrie::getWordsWithPrefix(std::string prefix) {
+// Given a prefix, return all strings in the SequentialTrie that strictly starts with that prefix.
+std::vector<std::string> SequentialTrie::getStringsWithPrefix(std::string prefix) {
 
     std::vector<std::string> words;
 
@@ -237,8 +234,8 @@ std::vector<std::string> SequentialTrie::getWordsWithPrefix(std::string prefix) 
 
 
 // Returns all words in the SequentialTrie, sorted alphabetically.
-std::vector<std::string> SequentialTrie::getAllWordsSorted() {
-    // In this sequential implementation, this returns the same thing as getWordsWithPrefix("")
+std::vector<std::string> SequentialTrie::getAllStringsSorted() {
+    // In this sequential implementation, this returns the same thing as getStringsWithPrefix("")
 
     std::vector<std::string> words;
 
