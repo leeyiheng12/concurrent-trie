@@ -260,7 +260,7 @@ void ConcurrentTrie::removeAsyncHelper(std::shared_ptr<ConcurrentTrie> trie, std
    
     #pragma omp parallel for
     for (int i = 0; i < words->size(); i++) {
-        trie->insert((*words)[i]);
+        trie->remove((*words)[i]);
     }
 
     trie->asyncWriteLock_->endWrite();  // asyncWriteLock_->startWrite() was called by removeAsync()
