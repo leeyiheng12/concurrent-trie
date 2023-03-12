@@ -352,7 +352,7 @@ std::vector<std::string> loadWords(std::string filepath, int numWords) {
 int main(int argc, char const* argv[]) {
     
     std::string filepath = "wordlist_100k.txt";
-    int maxNumWords = 200000;
+    int maxNumWords = 2000;
     if (argc > 1) filepath = argv[1];
     if (argc > 2) maxNumWords = atoi(argv[2]);
     std::vector<std::string> wordList = loadWords(filepath, maxNumWords);
