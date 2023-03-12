@@ -476,9 +476,14 @@ void time_delete_multiple_words(std::vector<std::string> words) {
 int main(int argc, char const* argv[]) {
 
     std::string filepath = "wordlist_100k.txt";
-    int maxNumWords = 200000;
     if (argc > 1) filepath = argv[1];
+    
+    int maxNumWords = 200000;
     if (argc > 2) maxNumWords = atoi(argv[2]);
+
+    std::string prefix = "can";  // Random prefix for testing
+    if (argc > 3) prefix = argv[3];
+
     std::vector<std::string> wordList = loadWords(filepath, maxNumWords);
 
     // Shuffle the wordlist
@@ -486,23 +491,30 @@ int main(int argc, char const* argv[]) {
     auto rng = std::default_random_engine { rd() };
     std::shuffle(std::begin(wordList), std::end(wordList), rng);
 
-    // printf("Number of words in wordlist: %ld\n", wordList.size());
-    // time_initialisation();
+    printf("Number of words in wordlist: %ld\n", wordList.size());
+    printf("1. Time initialisation\n");
+    printf("2. Time adding a single word\n");
+    printf("3. Time adding multiple words\n");
+    printf("4. Time searching for a single string\n");
+    printf("5. Time searching for multiple strings\n");
+    printf("6. Time removing a single word\n");
+    printf("7. Time removing multiple words\n");
+    printf("8. Time getting sorted words\n");
+    printf("9. Time getting sorted words with prefix\n");
 
-    // time_add_single_word(wordList);
-    // time_add_multiple_words(wordList);
-
-    // time_check_single_string_exists(wordList);
-    // time_check_multiple_strings_exist(wordList);
-
-    // time_get_sorted_words(wordList);
-    std::string prefix = "ca";
-    if (argc > 3) prefix = argv[3];
-    time_get_strings_with_prefix(wordList, prefix);
-
-    // time_delete_single_word(wordList);
-    // time_delete_multiple_words(wordList);
-
+    int choice;
+    scanf("%d", &choice);
+    if (choice == 1) time_initialisation();
+    else if (choice == 2) time_add_single_word(wordList);
+    else if (choice == 3) time_add_multiple_words(wordList);
+    else if (choice == 4) time_check_single_string_exists(wordList);
+    else if (choice == 5) time_check_multiple_strings_exist(wordList);
+    else if (choice == 6) time_delete_single_word(wordList);
+    else if (choice == 7) time_delete_multiple_words(wordList);
+    else if (choice == 8) time_get_sorted_words(wordList);
+    else if (choice == 9) time_get_strings_with_prefix(wordList, prefix);
+    else printf("Invalid choice.\n");
+    
     return 0;
 
 }
