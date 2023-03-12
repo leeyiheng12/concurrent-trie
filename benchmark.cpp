@@ -9,7 +9,7 @@
 #include "ConcurrentTrie.h"
 #include "SequentialTrie.h"
 
-#define NUM_ITERATIONS 10000
+#define NUM_ITERATIONS 100000
 
 
 double read_timer() {
@@ -320,12 +320,9 @@ void time_get_sorted_words(std::vector<std::string> words) {
     if (h != c) {
         printf("ERROR: Conc!\n");
     }
-    
     if (s != c) {
         printf("ERROR: Seq != Conc!\n");
-    }
-
-    
+    }    
     printf("\n\n");
 
 }
@@ -393,37 +390,30 @@ void time_delete_single_word(std::vector<std::string> words) {
     double start_time, end_time;
     int numWords = words.size();
     
-    seq_trie->insert(&words);
+    // seq_trie->insert(&words);
     conc_trie->insert(&words);
     hashset->insert(words.begin(), words.end());
 
-    int numWordsToRemove = numWords / 3;
-    std::vector<std::string> wordsToRemove;
-    for (int i = 0; i < numWordsToRemove; i++) {
-        int randomWordIndex = rand() % numWords;
-        std::string randomWord = words.at(randomWordIndex);
-        wordsToRemove.push_back(randomWord);
-    }
     
     printf("\n\n");
 
     // Time SequentialTrie
-    start_time = read_timer();
-    for (std::string word : wordsToRemove) seq_trie->remove(word);
-    end_time = read_timer();
-    printf("[Seq] Average time taken to remove a single string: %g seconds.\n", (end_time - start_time) / numWordsToRemove);
+    // start_time = read_timer();
+    // for (std::string word : words) seq_trie->remove(word);
+    // end_time = read_timer();
+    // printf("[Seq] Average time taken to remove a single string: %g seconds.\n", (end_time - start_time) / numWords);
 
     // Time ConcurrentTrie
     start_time = read_timer();
-    for (std::string word : wordsToRemove) conc_trie->remove(word);
+    for (std::string word : words) conc_trie->remove(word);
     end_time = read_timer();
-    printf("[Conc] Average time taken to remove a single string: %g seconds.\n", (end_time - start_time) / numWordsToRemove);
+    printf("[Conc] Average time taken to remove a single string: %g seconds.\n", (end_time - start_time) / numWords);
 
     // Time HashSet
     start_time = read_timer();
-    for (std::string word : wordsToRemove) hashset->erase(word);
+    for (std::string word : words) hashset->erase(word);
     end_time = read_timer();
-    printf("[Hash] Average time taken to remove a single string: %g seconds.\n", (end_time - start_time) / numWordsToRemove);
+    printf("[Hash] Average time taken to remove a single string: %g seconds.\n", (end_time - start_time) / numWords);
 
     printf("\n\n");
 
@@ -432,65 +422,50 @@ void time_delete_single_word(std::vector<std::string> words) {
 void time_delete_multiple_words(std::vector<std::string> words) {
 
     std::shared_ptr<SequentialTrie> seq_trie = std::make_shared<SequentialTrie>();
-    std::shared_ptr<ConcurrentTrie> conc_trie = std::make_shared<ConcurrentTrie>();
     std::shared_ptr<std::unordered_set<std::string>> hashset = std::make_shared<std::unordered_set<std::string>>();
     double start_time, end_time;
     int numWords = words.size();
     
     seq_trie->insert(&words);
-    conc_trie->insert(&words);
     hashset->insert(words.begin(), words.end());
-
-    int numWordsToRemove = numWords / 3;
-    std::vector<std::string> wordsToRemove;
-    for (int i = 0; i < numWordsToRemove; i++) {
-        int randomWordIndex = rand() % numWords;
-        std::string randomWord = words.at(randomWordIndex);
-        wordsToRemove.push_back(randomWord);
-    }
     
     printf("\n\n");
 
     // Time SequentialTrie
     start_time = read_timer();
-    seq_trie->remove(&wordsToRemove);
+    seq_trie->remove(&words);
     end_time = read_timer();
-    printf("[Seq] Time taken to remove %d strings: %g seconds.\n", numWordsToRemove, end_time - start_time);
-
-    // Time ConcurrentTrie
-    start_time = read_timer();
-    conc_trie->remove(&wordsToRemove);
-    end_time = read_timer();
-    printf("[Conc] Time taken to remove %d strings: %g seconds.\n", numWordsToRemove, end_time - start_time);
+    printf("[Seq] Time taken to remove %d strings: %g seconds.\n", numWords, end_time - start_time);
 
     // Time ConcurrentTrie for each number of threads
     // int maxThreads = omp_get_max_threads();
-    int minThreads = 3;
-    int maxThreads = 6;
-    for (int numThreads = minThreads; numThreads <= maxThreads; numThreads++) {
+    int minThreads = 4;
+    int maxThreads = 12;
+    for (int numThreads = minThreads; numThreads <= maxThreads; numThreads += 2) {
 
         std::shared_ptr<ConcurrentTrie> conc_trie = std::make_shared<ConcurrentTrie>();
         conc_trie->setNumThreads(numThreads);
+        conc_trie->insert(&words);
         
         start_time = read_timer();
-        conc_trie->remove(&wordsToRemove);
+        conc_trie->remove(&words);
         end_time = read_timer();
 
-        printf("[Conc (Threads=%d)] Time taken to remove %d strings: %g seconds.\n", numThreads, numWordsToRemove, end_time - start_time);
+        printf("[Conc (Threads=%d)] Time taken to remove %d strings: %g seconds.\n", numThreads, numWords, end_time - start_time);
 
     }
     
     std::shared_ptr<ConcurrentTrie> conc_trie_2 = std::make_shared<ConcurrentTrie>();
     start_time = read_timer();
-    conc_trie_2->removeAsync(&wordsToRemove);
+    conc_trie_2->removeAsync(&words);
     end_time = read_timer();
-    printf("[Conc Async] Time taken to remove %d strings: %g seconds.\n", numWordsToRemove, end_time - start_time);
+    printf("[Conc Async] Time taken to remove %d strings: %g seconds.\n", numWords, end_time - start_time);
 
     // Time HashSet
     start_time = read_timer();
-    for (std::string word : wordsToRemove) hashset->erase(word);
+    for (std::string word : words) hashset->erase(word);
     end_time = read_timer();
-    printf("[Hash] Time taken to remove %d strings: %g seconds.\n", numWordsToRemove, end_time - start_time);
+    printf("[Hash] Time taken to remove %d strings: %g seconds.\n", numWords, end_time - start_time);
 
 
     printf("\n\n");
@@ -501,10 +476,10 @@ void time_delete_multiple_words(std::vector<std::string> words) {
 int main(int argc, char const* argv[]) {
 
     std::string filepath = "wordlist_100k.txt";
-    int numWords = 200000;
+    int maxNumWords = 200000;
     if (argc > 1) filepath = argv[1];
-    if (argc > 2) numWords = atoi(argv[2]);
-    std::vector<std::string> wordList = loadWords(filepath, numWords);
+    if (argc > 2) maxNumWords = atoi(argv[2]);
+    std::vector<std::string> wordList = loadWords(filepath, maxNumWords);
 
     // Shuffle the wordlist
     auto rd = std::random_device {}; 
@@ -521,12 +496,12 @@ int main(int argc, char const* argv[]) {
     // time_check_multiple_strings_exist(wordList);
 
     // time_get_sorted_words(wordList);
-    // std::string prefix = "ca";
-    // if (argc > 3) prefix = argv[3];
-    // time_get_strings_with_prefix(wordList, prefix);
+    std::string prefix = "ca";
+    if (argc > 3) prefix = argv[3];
+    time_get_strings_with_prefix(wordList, prefix);
 
     // time_delete_single_word(wordList);
-    time_delete_multiple_words(wordList);
+    // time_delete_multiple_words(wordList);
 
     return 0;
 

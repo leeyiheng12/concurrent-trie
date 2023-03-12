@@ -47,6 +47,11 @@ void SequentialTrie::insert(std::string word) {
             std::shared_ptr<SequentialNode> newNode = std::make_shared<SequentialNode>();
             newNode->parent_ = cur;
             newNode->selfIndex_ = index;
+            newNode->isEnd_ = false;
+            newNode->numChildren_ = 0;
+            for (int i = 0; i < NODE_SIZE; i++) {
+                newNode->children_[i] = NULL;
+            }
             
             cur->children_[index] = newNode;
             cur->numChildren_++;
